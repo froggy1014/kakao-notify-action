@@ -1,0 +1,45 @@
+name: Kakao Notify
+description: Send a KakaoTalk message through the Kakao Bot Hub
+author: froggy1014
+branding:
+  icon: message-circle
+  color: yellow
+inputs:
+  api-key:
+    description: Kakao Bot Hub service API key (kb_...). Needs messages:send, plus rooms:read when check-session is true.
+    required: true
+  room:
+    description: Exact KakaoTalk room name bound to the service
+    required: true
+  text:
+    description: Message text (truncated to 4000 chars)
+    required: true
+  request-id:
+    description: Idempotency key. Reuse the same id for the same logical send; omit to let the hub generate one.
+    required: false
+  base-url:
+    description: Hub origin
+    required: false
+    default: https://kakao-api.jeongmin.dev
+  timeout-ms:
+    description: Request timeout in milliseconds
+    required: false
+    default: "10000"
+  check-session:
+    description: Fail without sending when the room has no phone session (canReply=false) or is not bound
+    required: false
+    default: "true"
+  fail-on-error:
+    description: Mark the step failed on any error; set false to only warn
+    required: false
+    default: "true"
+outputs:
+  request-id:
+    description: Request id accepted by the hub
+  queued:
+    description: "true when the hub queued the message"
+  duplicate:
+    description: "true when the hub had already accepted this request id"
+runs:
+  using: node20
+  main: dist/index.js

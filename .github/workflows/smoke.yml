@@ -1,0 +1,21 @@
+name: smoke
+on:
+  workflow_dispatch:
+    inputs:
+      room:
+        default: 홈랩 알림
+      text:
+        default: kakao-notify-action smoke
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          api-key: ${{ secrets.KAKAO_API_KEY }}
+          room: ${{ inputs.room }}
+          text: ${{ inputs.text }}
+          request-id: smoke:${{ github.run_id }}
