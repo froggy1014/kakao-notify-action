@@ -1,6 +1,6 @@
 {
   "name": "kakao-notify-action",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "GitHub Action: send a KakaoTalk message through the Kakao Bot Hub",
   "type": "module",

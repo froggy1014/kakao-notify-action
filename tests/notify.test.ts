@@ -51,3 +51,15 @@ describe("notify", () => {
     expect(JSON.parse(f.calls[1].init.body as string).msg).toHaveLength(MAX_TEXT);
   });
 });
+
+describe("truncation", () => {
+  it("never splits a surrogate pair at the cut", async () => {
+    const f = fakeFetch([{ name: "홈랩 알림", status: "active", canReply: true }]);
+    const text = "x".repeat(MAX_TEXT - 1) + "🤖" + "tail"; // emoji straddles index 4000
+    await notify({ ...base, text }, f);
+    const msg = JSON.parse(f.calls[1].init.body as string).msg as string;
+    expect(msg.length).toBeLessThanOrEqual(MAX_TEXT);
+    expect(msg.endsWith("x")).toBe(true);
+    expect(/[\uD800-\uDFFF]$/.test(msg)).toBe(false);
+  });
+});

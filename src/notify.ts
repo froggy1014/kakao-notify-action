@@ -41,7 +41,7 @@ export async function notify(input: NotifyInput, deps: NotifyDeps = {}): Promise
 
   const result = await kakao.sendMessage({
     room: input.room,
-    text: input.text.slice(0, MAX_TEXT),
+    text: truncate(input.text, MAX_TEXT),
     requestId: input.requestId,
   });
 
@@ -51,4 +51,11 @@ export async function notify(input: NotifyInput, deps: NotifyDeps = {}): Promise
     duplicate: result.duplicate ?? false,
     test: result.test ?? false,
   };
+}
+
+/** UTF-16 길이 기준으로 자르되 서로게이트 쌍(이모지)을 가운데서 끊지 않는다. */
+export function truncate(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  return /[\uD800-\uDBFF]$/.test(cut) ? cut.slice(0, -1) : cut;
 }
