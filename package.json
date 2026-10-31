@@ -1,0 +1,23 @@
+{
+  "name": "kakao-notify-action",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub Action: send a KakaoTalk message through the Kakao Bot Hub",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "ncc build src/main.ts -o dist --minify --license licenses.txt",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@actions/core": "1.11.1",
+    "@kakao-bot/sdk": "0.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@vercel/ncc": "0.38.3",
+    "typescript": "5.9.3",
+    "vitest": "^3.2.7"
+  }
+}
