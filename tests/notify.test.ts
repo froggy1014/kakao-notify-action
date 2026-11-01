@@ -63,3 +63,21 @@ describe("truncation", () => {
     expect(/[\uD800-\uDFFF]$/.test(msg)).toBe(false);
   });
 });
+
+describe("Iris stable room targeting", () => {
+  it("sends to the checked hub UUID even when the caller supplied a display name", async () => {
+    const f = fakeFetch([{ id: "hub-42", name: base.room, status: "active", canReply: true }]);
+    await notify({ ...base, text: "hi", requestId: "stable" }, f);
+    expect(f.calls[1].url).toBe("https://hub.test/v1/rooms/id/hub-42/messages");
+  });
+  it("accepts an explicit room UUID after its display name changes", async () => {
+    const f = fakeFetch([{ id: "hub-42", name: "renamed", status: "active", canReply: true }]);
+    await notify({ ...base, room: undefined, roomId: "hub-42", text: "hi" }, f);
+    expect(f.calls[1].url).toBe("https://hub.test/v1/rooms/id/hub-42/messages");
+  });
+  it("rejects ambiguous target configuration without network calls", async () => {
+    const f = fakeFetch([]);
+    await expect(notify({ ...base, roomId: "hub-42", text: "hi" }, f)).rejects.toThrow("exactly one");
+    expect(f.calls).toHaveLength(0);
+  });
+});

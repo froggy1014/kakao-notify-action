@@ -39,3 +39,14 @@ GitHub Action that sends a KakaoTalk message through the [Kakao Bot Hub](https:/
 ## Release
 
 Bump `package.json` version, `pnpm build`, commit `dist/`, tag `vX.Y.Z` and move the `v1` tag.
+
+### Iris migration
+
+Use `room-id` (the hub's UUID from `listRooms`) instead of `room` to keep the target
+stable when its Kakao display name changes. Supply exactly one. Existing `room`
+workflows remain supported; when `check-session` is enabled the action sends to the
+UUID returned by the room check. `queued` confirms hub acceptance, not recipient
+delivery. On an uncertain failure the `request-id` output is retained when available;
+reuse that ID for the same logical send. Never generate a fresh ID just to retry an
+unknown outcome. Iris readiness depends on the bridge and explicit room mapping,
+rather than a MessengerBotR notification session.
