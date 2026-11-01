@@ -14,7 +14,8 @@ async function run(): Promise<void> {
   try {
     const result = await notify({
       apiKey,
-      room: core.getInput("room", { required: true }),
+      room: core.getInput("room") || undefined,
+      roomId: core.getInput("room-id") || undefined,
       text: core.getInput("text", { required: true }),
       requestId: core.getInput("request-id") || undefined,
       baseUrl: core.getInput("base-url") || "https://kakao-api.jeongmin.dev",
@@ -29,7 +30,10 @@ async function run(): Promise<void> {
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    if (isKakaoError(error)) core.error(JSON.stringify(error.toJSON()));
+    if (isKakaoError(error)) {
+      if (error.requestId) core.setOutput("request-id", error.requestId);
+      core.error(JSON.stringify(error.toJSON()));
+    }
     else if (error instanceof RoomNoSessionError || error instanceof RoomNotBoundError) core.error(message);
     else throw error;
     if (failOnError) core.setFailed(message);

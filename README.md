@@ -18,12 +18,13 @@ GitHub Action that sends a KakaoTalk message through the [Kakao Bot Hub](https:/
 | Input | Required | Default | Description |
 |---|---|---|---|
 | `api-key` | yes | | Hub service API key (`kb_…`). Scopes `messages:send`, plus `rooms:read` when `check-session` is on |
-| `room` | yes | | Exact room name bound to the service |
+| `room` | one target required | | Exact room name bound to the service; mutually exclusive with `room-id` |
+| `room-id` | one target required | | Stable hub room UUID; mutually exclusive with `room` |
 | `text` | yes | | Message. Truncated to 4000 chars |
 | `request-id` | no | hub-generated | Idempotency key. **Retry with the same id**; a new id sends twice |
 | `base-url` | no | `https://kakao-api.jeongmin.dev` | Hub origin |
 | `timeout-ms` | no | `10000` | Request timeout |
-| `check-session` | no | `true` | Call `GET /v1/rooms` first; fail without sending when the room is not bound or has `canReply: false` (phone restarted and nobody has written in the room yet) |
+| `check-session` | no | `true` | Call `GET /v1/rooms` first; fail without sending when the room is not bound or has `canReply: false` (transport is not ready for the room) |
 | `fail-on-error` | no | `true` | Mark the step failed on any error. `false` only warns |
 
 ## Outputs
@@ -34,8 +35,19 @@ GitHub Action that sends a KakaoTalk message through the [Kakao Bot Hub](https:/
 
 - The hub answers `202` when the message is **queued**, not delivered. Delivery is visible in the hub admin log.
 - No automatic retries. The SDK never retries either; a timeout may already have been accepted.
-- Session check matters because a room where only the bot writes goes dead after every bot-phone restart. With `check-session: true` the failed step surfaces that through GitHub's own workflow-failure notification.
+- With `check-session: true`, unavailable transport or room mapping fails before sending. MessengerBotR additionally requires a recent notification session; Iris uses its bridge connection and explicit room mapping.
 
 ## Release
 
 Bump `package.json` version, `pnpm build`, commit `dist/`, tag `vX.Y.Z` and move the `v1` tag.
+
+### Iris migration
+
+Use `room-id` (the hub's UUID from `listRooms`) instead of `room` to keep the target
+stable when its Kakao display name changes. Supply exactly one. Existing `room`
+workflows remain supported; when `check-session` is enabled the action sends to the
+UUID returned by the room check. `queued` confirms hub acceptance, not recipient
+delivery. On an uncertain failure the `request-id` output is retained when available;
+reuse that ID for the same logical send. Never generate a fresh ID just to retry an
+unknown outcome. Iris readiness depends on the bridge and explicit room mapping,
+rather than a MessengerBotR notification session.

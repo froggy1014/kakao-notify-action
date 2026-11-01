@@ -9,13 +9,16 @@ inputs:
     description: Kakao Bot Hub service API key (kb_...). Needs messages:send, plus rooms:read when check-session is true.
     required: true
   room:
-    description: Exact KakaoTalk room name bound to the service
-    required: true
+    description: Exact room display name; omit when room-id is set
+    required: false
+  room-id:
+    description: Stable hub room UUID; use instead of room to survive Kakao display-name changes
+    required: false
   text:
     description: Message text (truncated to 4000 chars)
     required: true
   request-id:
-    description: Idempotency key. Reuse the same id for the same logical send; omit to let the hub generate one.
+    description: Idempotency key. Reuse the same id for the same logical send; omit to let the SDK generate one.
     required: false
   base-url:
     description: Hub origin
@@ -35,7 +38,7 @@ inputs:
     default: "true"
 outputs:
   request-id:
-    description: Request id accepted by the hub
+    description: Request id, including uncertain failures when available
   queued:
     description: "true when the hub queued the message"
   duplicate:

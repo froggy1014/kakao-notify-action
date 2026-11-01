@@ -3,7 +3,9 @@ import { RoomNoSessionError, RoomNotBoundError } from "./errors.js";
 
 export interface NotifyInput {
   apiKey: string;
-  room: string;
+  room?: string;
+  /** Stable hub room UUID, not a numeric Kakao chat ID. */
+  roomId?: string;
   text: string;
   requestId?: string;
   baseUrl: string;
@@ -25,6 +27,9 @@ export interface NotifyDeps {
 export const MAX_TEXT = 4000;
 
 export async function notify(input: NotifyInput, deps: NotifyDeps = {}): Promise<NotifyResult> {
+  if (Boolean(input.room) === Boolean(input.roomId)) throw new TypeError("Specify exactly one of room or room-id");
+  let roomId = input.roomId;
+  const target = input.roomId ?? input.room ?? "";
   const kakao = new KakaoBot({
     baseUrl: input.baseUrl,
     apiKey: input.apiKey,
@@ -34,13 +39,14 @@ export async function notify(input: NotifyInput, deps: NotifyDeps = {}): Promise
 
   if (input.checkSession) {
     const rooms = await kakao.listRooms();
-    const room = rooms.find((r) => r.name === input.room);
-    if (!room) throw new RoomNotBoundError(input.room);
-    if (!room.canReply) throw new RoomNoSessionError(input.room);
+    const room = rooms.find((r) => input.roomId ? r.id === input.roomId : r.name === input.room);
+    if (!room) throw new RoomNotBoundError(target);
+    roomId = room.id ?? roomId;
+    if (!room.canReply) throw new RoomNoSessionError(target);
   }
 
   const result = await kakao.sendMessage({
-    room: input.room,
+    ...(roomId ? { roomId } : { room: input.room ?? "" }),
     text: truncate(input.text, MAX_TEXT),
     requestId: input.requestId,
   });
