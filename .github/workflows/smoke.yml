@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./
         with:
-          api-key: ${{ secrets.KAKAO_API_KEY }}
+          api-key: ${{ secrets.NOTIBOT_API_KEY }}
           room: ${{ inputs.room }}
           text: ${{ inputs.text }}
           request-id: smoke:${{ github.run_id }}

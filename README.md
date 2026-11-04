@@ -5,7 +5,7 @@ GitHub Action that sends a KakaoTalk message through the [NotiBot](https://githu
 ```yaml
 - uses: froggy1014/kakao-notify-action@v1
   with:
-    api-key: ${{ secrets.KAKAO_API_KEY }}
+    api-key: ${{ secrets.NOTIBOT_API_KEY }}
     room: 홈랩 알림
     text: |
       🤖 자동 머지: homelab-deps
