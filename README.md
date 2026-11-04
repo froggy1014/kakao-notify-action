@@ -1,6 +1,6 @@
 # kakao-notify-action
 
-GitHub Action that sends a KakaoTalk message through the [Kakao Bot Hub](https://github.com/froggy1014/kakao-bot) using [`@kakao-bot/sdk`](https://www.npmjs.com/package/@kakao-bot/sdk).
+GitHub Action that sends a KakaoTalk message through the [NotiBot](https://github.com/froggy1014/noti-bot) using [`@noti-bot/sdk`](https://www.npmjs.com/package/@noti-bot/sdk).
 
 ```yaml
 - uses: froggy1014/kakao-notify-action@v1
@@ -22,7 +22,7 @@ GitHub Action that sends a KakaoTalk message through the [Kakao Bot Hub](https:/
 | `room-id` | one target required | | Stable hub room UUID; mutually exclusive with `room` |
 | `text` | yes | | Message. Truncated to 4000 chars |
 | `request-id` | no | hub-generated | Idempotency key. **Retry with the same id**; a new id sends twice |
-| `base-url` | no | `https://kakao-api.jeongmin.dev` | Hub origin |
+| `base-url` | no | `https://api.notibot.xyz` | Hub origin |
 | `timeout-ms` | no | `10000` | Request timeout |
 | `check-session` | no | `true` | Call `GET /v1/rooms` first; fail without sending when the room is not bound or has `canReply: false` (transport is not ready for the room) |
 | `fail-on-error` | no | `true` | Mark the step failed on any error. `false` only warns |

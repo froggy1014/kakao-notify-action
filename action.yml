@@ -1,12 +1,12 @@
 name: Kakao Notify
-description: Send a KakaoTalk message through the Kakao Bot Hub
+description: Send a KakaoTalk message through NotiBot
 author: froggy1014
 branding:
   icon: message-circle
   color: yellow
 inputs:
   api-key:
-    description: Kakao Bot Hub service API key (kb_...). Needs messages:send, plus rooms:read when check-session is true.
+    description: NotiBot service API key (kb_...). Needs messages:send, plus rooms:read when check-session is true.
     required: true
   room:
     description: Exact room display name; omit when room-id is set
@@ -23,7 +23,7 @@ inputs:
   base-url:
     description: Hub origin
     required: false
-    default: https://kakao-api.jeongmin.dev
+    default: https://api.notibot.xyz
   timeout-ms:
     description: Request timeout in milliseconds
     required: false
