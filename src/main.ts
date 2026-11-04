@@ -1,5 +1,5 @@
 import * as core from "@actions/core";
-import { isKakaoError } from "@kakao-bot/sdk";
+import { isNotiBotError } from "@noti-bot/sdk";
 import { RoomNoSessionError, RoomNotBoundError } from "./errors.js";
 import { notify } from "./notify.js";
 
@@ -18,7 +18,7 @@ async function run(): Promise<void> {
       roomId: core.getInput("room-id") || undefined,
       text: core.getInput("text", { required: true }),
       requestId: core.getInput("request-id") || undefined,
-      baseUrl: core.getInput("base-url") || "https://kakao-api.jeongmin.dev",
+      baseUrl: core.getInput("base-url") || "https://api.notibot.xyz",
       timeoutMs: Number(core.getInput("timeout-ms") || "10000"),
       checkSession: boolInput("check-session"),
     });
@@ -30,7 +30,7 @@ async function run(): Promise<void> {
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    if (isKakaoError(error)) {
+    if (isNotiBotError(error)) {
       if (error.requestId) core.setOutput("request-id", error.requestId);
       core.error(JSON.stringify(error.toJSON()));
     }

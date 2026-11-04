@@ -1,4 +1,4 @@
 allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
-  - '@kakao-bot/sdk@0.3.0'
+  - '@noti-bot/sdk@0.7.0'

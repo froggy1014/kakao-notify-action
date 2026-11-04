@@ -1,4 +1,4 @@
-import { KakaoBot } from "@kakao-bot/sdk";
+import { NotiBot } from "@noti-bot/sdk";
 import { RoomNoSessionError, RoomNotBoundError } from "./errors.js";
 
 export interface NotifyInput {
@@ -30,7 +30,7 @@ export async function notify(input: NotifyInput, deps: NotifyDeps = {}): Promise
   if (Boolean(input.room) === Boolean(input.roomId)) throw new TypeError("Specify exactly one of room or room-id");
   let roomId = input.roomId;
   const target = input.roomId ?? input.room ?? "";
-  const kakao = new KakaoBot({
+  const kakao = new NotiBot({
     baseUrl: input.baseUrl,
     apiKey: input.apiKey,
     timeoutMs: input.timeoutMs,
