@@ -15,7 +15,7 @@
     "@noti-bot/sdk": "0.7.0"
   },
   "devDependencies": {
-    "@types/node": "^20.19.43",
+    "@types/node": "^26.0.0",
     "@vercel/ncc": "0.38.3",
     "typescript": "5.9.3",
     "vitest": "^3.2.7"
