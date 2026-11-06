@@ -1,4 +1,4 @@
-name: Kakao Notify
+name: NotiBot Notify
 description: Send a KakaoTalk message through NotiBot
 author: froggy1014
 branding:
@@ -9,14 +9,20 @@ inputs:
     description: NotiBot service API key (kb_...). Needs messages:send, plus rooms:read when check-session is true.
     required: true
   room:
-    description: Exact room display name; omit when room-id is set
+    description: Exact room display name. Set exactly one of room, room-slug or room-id
+    required: false
+  room-slug:
+    description: Workspace-unique room slug (e.g. deploy-alerts). Set exactly one of room, room-slug or room-id
     required: false
   room-id:
-    description: Stable hub room UUID; use instead of room to survive Kakao display-name changes
+    description: Stable hub room UUID; survives display-name and slug changes. Set exactly one of room, room-slug or room-id
     required: false
   text:
     description: Message text (truncated to 4000 chars)
     required: true
+  mentions:
+    description: Display names to tag (comma or newline separated). Each must match exactly one room member; Iris transport only
+    required: false
   request-id:
     description: Idempotency key. Reuse the same id for the same logical send; omit to let the SDK generate one.
     required: false

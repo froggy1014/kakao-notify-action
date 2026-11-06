@@ -5,7 +5,7 @@ on:
       room:
         default: 이정민
       text:
-        default: kakao-notify-action smoke
+        default: notibot-action smoke
 permissions:
   contents: read
 jobs:

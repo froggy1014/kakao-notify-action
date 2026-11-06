@@ -7,6 +7,15 @@ function boolInput(name: string): boolean {
   return core.getInput(name).trim().toLowerCase() !== "false";
 }
 
+function listInput(name: string): string[] | undefined {
+  const values = core
+    .getInput(name)
+    .split(/[\n,]/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+  return values.length ? values : undefined;
+}
+
 async function run(): Promise<void> {
   const apiKey = core.getInput("api-key", { required: true });
   core.setSecret(apiKey);
@@ -15,8 +24,10 @@ async function run(): Promise<void> {
     const result = await notify({
       apiKey,
       room: core.getInput("room") || undefined,
+      roomSlug: core.getInput("room-slug") || undefined,
       roomId: core.getInput("room-id") || undefined,
       text: core.getInput("text", { required: true }),
+      mentions: listInput("mentions"),
       requestId: core.getInput("request-id") || undefined,
       baseUrl: core.getInput("base-url") || "https://api.notibot.xyz",
       timeoutMs: Number(core.getInput("timeout-ms") || "10000"),
@@ -26,7 +37,7 @@ async function run(): Promise<void> {
     core.setOutput("queued", String(result.queued));
     core.setOutput("duplicate", String(result.duplicate));
     core.info(
-      `kakao: request_id=${result.requestId} queued=${result.queued} duplicate=${result.duplicate}${result.test ? " (test key, not delivered)" : ""}`,
+      `notibot: request_id=${result.requestId} queued=${result.queued} duplicate=${result.duplicate}${result.test ? " (test key, not delivered)" : ""}`,
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
