@@ -4,9 +4,13 @@ import { RoomNoSessionError, RoomNotBoundError } from "./errors.js";
 export interface NotifyInput {
   apiKey: string;
   room?: string;
+  /** Workspace-unique room slug, e.g. `deploy-alerts`. */
+  roomSlug?: string;
   /** Stable hub room UUID, not a numeric Kakao chat ID. */
   roomId?: string;
   text: string;
+  /** Display names to tag; each must match exactly one room member. */
+  mentions?: string[];
   requestId?: string;
   baseUrl: string;
   timeoutMs: number;
@@ -26,11 +30,18 @@ export interface NotifyDeps {
 
 export const MAX_TEXT = 4000;
 
+type Target = { roomId: string } | { roomSlug: string } | { room: string };
+
 export async function notify(input: NotifyInput, deps: NotifyDeps = {}): Promise<NotifyResult> {
-  if (Boolean(input.room) === Boolean(input.roomId)) throw new TypeError("Specify exactly one of room or room-id");
-  let roomId = input.roomId;
-  const target = input.roomId ?? input.room ?? "";
-  const kakao = new NotiBot({
+  const targets = [input.room, input.roomSlug, input.roomId].filter(Boolean);
+  if (targets.length !== 1) throw new TypeError("Specify exactly one of room, room-slug or room-id");
+  let target: Target = input.roomId
+    ? { roomId: input.roomId }
+    : input.roomSlug
+      ? { roomSlug: input.roomSlug }
+      : { room: input.room ?? "" };
+  const label = targets[0] ?? "";
+  const bot = new NotiBot({
     baseUrl: input.baseUrl,
     apiKey: input.apiKey,
     timeoutMs: input.timeoutMs,
@@ -38,17 +49,20 @@ export async function notify(input: NotifyInput, deps: NotifyDeps = {}): Promise
   });
 
   if (input.checkSession) {
-    const rooms = await kakao.listRooms();
-    const room = rooms.find((r) => input.roomId ? r.id === input.roomId : r.name === input.room);
-    if (!room) throw new RoomNotBoundError(target);
-    roomId = room.id ?? roomId;
-    if (!room.canReply) throw new RoomNoSessionError(target);
+    const rooms = await bot.listRooms();
+    const room = rooms.find((r) =>
+      input.roomId ? r.id === input.roomId : input.roomSlug ? r.slug === input.roomSlug : r.name === input.room,
+    );
+    if (!room) throw new RoomNotBoundError(label);
+    if (room.id) target = { roomId: room.id };
+    if (!room.canReply) throw new RoomNoSessionError(label);
   }
 
-  const result = await kakao.sendMessage({
-    ...(roomId ? { roomId } : { room: input.room ?? "" }),
+  const result = await bot.sendMessage({
+    ...target,
     text: truncate(input.text, MAX_TEXT),
     requestId: input.requestId,
+    ...(input.mentions?.length ? { mentions: input.mentions } : {}),
   });
 
   return {

@@ -81,3 +81,31 @@ describe("Iris stable room targeting", () => {
     expect(f.calls).toHaveLength(0);
   });
 });
+
+describe("room slug and mentions", () => {
+  it("resolves a slug to the hub UUID when checking the session", async () => {
+    const f = fakeFetch([{ id: "hub-7", slug: "deploy-alerts", name: "배포", status: "active", canReply: true }]);
+    await notify({ ...base, room: undefined, roomSlug: "deploy-alerts", text: "hi" }, f);
+    expect(f.calls[1].url).toBe("https://hub.test/v1/rooms/id/hub-7/messages");
+  });
+  it("sends to the slug route when checkSession=false", async () => {
+    const f = fakeFetch([]);
+    await notify({ ...base, room: undefined, roomSlug: "deploy-alerts", checkSession: false, text: "hi" }, f);
+    expect(f.calls[0].url).toBe("https://hub.test/v1/rooms/deploy-alerts/messages");
+  });
+  it("fails without sending when the slug is not bound", async () => {
+    const f = fakeFetch([{ id: "hub-7", slug: "other", name: "배포", status: "active", canReply: true }]);
+    await expect(notify({ ...base, room: undefined, roomSlug: "deploy-alerts", text: "hi" }, f)).rejects.toBeInstanceOf(RoomNotBoundError);
+    expect(f.calls).toHaveLength(1);
+  });
+  it("forwards mentions to the hub", async () => {
+    const f = fakeFetch([{ name: "홈랩 알림", status: "active", canReply: true }]);
+    await notify({ ...base, text: "@이현근 확인", mentions: ["이현근"] }, f);
+    expect(JSON.parse(f.calls[1].init.body as string)).toMatchObject({ mentions: ["이현근"] });
+  });
+  it("omits mentions when none are given", async () => {
+    const f = fakeFetch([{ name: "홈랩 알림", status: "active", canReply: true }]);
+    await notify({ ...base, text: "hi" }, f);
+    expect(JSON.parse(f.calls[1].init.body as string)).not.toHaveProperty("mentions");
+  });
+});
